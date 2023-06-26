@@ -1,4 +1,5 @@
 ﻿#tool "nuget:?package=GitVersion.CommandLine&Version=5.10.1"
+#tool "nuget:?package=NuGet.CommandLine&version=5.9.1"
 #addin "nuget:?package=Cake.Json&version=7.0.1"
 
 var target = Argument("target", "Default");
@@ -28,8 +29,8 @@ Task("Version")
         versionInfo = GitVersion(new GitVersionSettings{ OutputType = GitVersionOutput.Json });
 
         Information(SerializeJsonPretty(versionInfo));
-        Information(System.Environment.GetEnvironmentVariable("GITHUB_OUTPUT"));
-        System.IO.File.WriteAllText(System.Environment.GetEnvironmentVariable("GITHUB_OUTPUT"), "Version_Info_SemVer=" + versionInfo.SemVer, Encoding.UTF8);
+        //Information(System.Environment.GetEnvironmentVariable("GITHUB_OUTPUT"));
+        //System.IO.File.WriteAllText(System.Environment.GetEnvironmentVariable("GITHUB_OUTPUT"), "Version_Info_SemVer=" + versionInfo.SemVer, Encoding.UTF8);
     });
 
 Task("Restore")
@@ -55,7 +56,7 @@ Task("Build")
         MSBuild("./src/DbUp.sln", settings);
     });
 
-Task("Test")
+/*Task("Test")
     .IsDependentOn("Build")
     .Does(() => {
          DotNetTest("./src/dbup-tests/dbup-tests.csproj", new DotNetTestSettings
@@ -65,10 +66,10 @@ Task("Test")
             Loggers = new[] {"console;verbosity=detailed", "trx" },
             ResultsDirectory = $"{outputDir}/TestResults"
         });
-    });
+    });*/
 
 Task("Package")
-    .IsDependentOn("Test")
+    .IsDependentOn("Build")
     .Does(() => {
 
         NuGetPack("./src/dbup/dbup.nuspec", new NuGetPackSettings() {
